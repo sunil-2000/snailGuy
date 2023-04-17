@@ -73,16 +73,12 @@ def main(stdscr):
   curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_RED) # obstacle
   curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK) # target 
   curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_GREEN) # target 
-  # init board
 
-  algo = Algo(y_lim, x_lim, start=(y_lim//2,x_lim//2))
+  algo = Algo(y_lim//2, x_lim, start=(y_lim//4,x_lim//2))
   algo.compute_path()
   game_init(win, algo, refresh)
   game_loop(win, algo, refresh)
 
-  # path find
-
   stdscr.getch()
-
 
 wrapper(main)
