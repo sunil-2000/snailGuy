@@ -1,10 +1,14 @@
+import numpy as np
+import pprint
+import openai
 from grid import Map
 from functools import lru_cache
-import numpy as np
+from private import sk
 
 class Algo(Map):
-    def __init__(self, y_lim, x_lim, start, n_obstacles=50, questions=[]):
+    def __init__(self, y_lim, x_lim, start, n_obstacles=50, questions="question.txt"):
         super().__init__(y_lim, x_lim)
+        openai.api_key = sk
         self.generate_boarder()
         self.generate_obstacles(size=n_obstacles)
         self.generate_objective()
@@ -12,16 +16,18 @@ class Algo(Map):
         self.start = start
         self.path_seq = []
 
-        self.questions = questions
-        
+        with open(questions) as file:
+          self.questions = [line.rstrip() for line in file]
+
+        self.marked_questions = [False for _ in range(len(self.questions))]
+
         # divide 2D space into k partitions where each partition is a 2D space
         A = (y_lim * x_lim) // len(questions) # area of partition
-        a_h, a_w = 2, A // 2
+        a_h, a_w = A // 9, 9
         self.q_map = [[-1 for _ in range(x_lim)] for _ in range(y_lim)]
         
         i, j = 0, 0
         for k in range(len(questions)):
-          print(i)
           for y in range(i, i + a_h+1, 1): # i, j, upper-left expand partition each iter
             for x in range(j, j + a_w+1, 1):
               if y < y_lim and  x < x_lim:
@@ -34,10 +40,10 @@ class Algo(Map):
 
         for i in range(y_lim):
            for j in range(x_lim):
-              if self.q_map < 0:
+              if self.q_map[i][j] < 0:
                  choice = np.random.randint(low=0, high=len(questions))
                  self.q_map[i][j] = choice
-        
+
         # permute questions
         self.questions = np.random.permutation(self.questions)
 
@@ -77,18 +83,36 @@ class Algo(Map):
         self.reached = self._dfs(self.start[0], self.start[1])
     
     def converse(self, i):
-       y, x = self.path_seq[i]
-       print(self.y_lim, self.x_lim)
-       print(y, x, (y * self.x_lim) + (x % self.x_lim))
-       q_idx = (y * self.x_lim + (x % self.x_lim)) % len(self.questions)
-       input_q = self.questions[q_idx]
-       print(input_q)
-       # plass call to GPT with input_q
+      y, x = self.path_seq[i]
+      q_idx = self.q_map[y][x]
 
-       pass
+      # plass call to GPT with input_q
+      input_q = self.questions[q_idx]
 
-algo = Algo(13, 17, n_obstacles=1, start=(1,1), questions=['1' for i in range(20)])
-algo.compute_path()
-# for i in range(len(algo.path_seq)):
-#   algo.converse(i)
+      if self.marked_questions[q_idx]:
+         return input_q, False
+
+      # completion = f"{' '.join(['hello' for _ in range(20)])}"
+      completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+           {"role": "user", "content": f"{input_q}"}
+         ],
+        max_tokens=10,
+        stream=True
+       )
+      self.marked_questions[q_idx] = True
+      return input_q, completion 
+
+
+
+# algo = Algo(34, 17, n_obstacles=50, start=(1,1))
+# algo.compute_path()
+# question, completion = algo.converse(0)
+# print(question)
+# for chunk in completion:
+#    if 'content' in chunk['choices'][0]['delta']:
+#     s = chunk['choices'][0]['delta']['content']
+#     print(s, len(s))
+
 

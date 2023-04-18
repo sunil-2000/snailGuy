@@ -21,6 +21,35 @@ def game_init(win, algo, refresh_fn):
   win.addstr(y_t, x_t, "$", curses.color_pair(5))
   refresh_fn()
 
+def gpt_conversation(win, algo, refresh_fn, question, completion):
+  boarder_offset = 2
+  y_chat, x_chat = algo.y_lim + boarder_offset, 1
+  question = f"[userA]: {question}"
+  refresh_fn()
+  win.addstr(y_chat, x_chat, question)
+
+  response = f"[userB]: "
+  win.addstr(y_chat + boarder_offset, x_chat, response)
+  refresh_fn()
+
+  y_chat += boarder_offset
+  x_chat += len(response)
+  switch = 0
+  for chunk in completion:
+    if 'content' in chunk['choices'][0]['delta']: # grab token to write
+      s = chunk['choices'][0]['delta']['content']
+
+      win.addstr(y_chat, x_chat, s)
+      refresh_fn()
+
+      if x_chat + len(s) < algo.x_lim:
+        x_chat += len(s)
+      else:
+        y_chat += 1; x_chat = 1
+
+      time.sleep(0.5)
+      switch += 1
+
 def game_loop(win, algo, refresh_fn):
   
   obstacles = algo.obstacles
@@ -47,7 +76,18 @@ def game_loop(win, algo, refresh_fn):
     y, x = algo.path_seq[i]
     win.addstr(y, x, ".", curses.color_pair(1))
     refresh_fn()
-    # talk to GPT
+    
+    # talk to GPT, pause path-finding, output completion    
+    question, completion = algo.converse(i)
+    if completion:
+      gpt_conversation(win, algo, refresh_fn, question, completion)
+
+    # clear chat window
+    win.addstr(algo.y_lim + 2, 1, '')
+    refresh_fn()
+    win.clrtobot()
+    refresh_fn()
+
     i+=1
     time.sleep(0.1)
 
@@ -73,6 +113,7 @@ def main(stdscr):
   curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_RED) # obstacle
   curses.init_pair(5, curses.COLOR_GREEN, curses.COLOR_BLACK) # target 
   curses.init_pair(6, curses.COLOR_BLACK, curses.COLOR_GREEN) # target 
+  curses.init_pair(7, curses.COLOR_BLACK, curses.COLOR_YELLOW) # player
 
   algo = Algo(y_lim//2, x_lim, start=(y_lim//4,x_lim//2))
   algo.compute_path()
