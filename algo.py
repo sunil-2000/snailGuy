@@ -1,5 +1,4 @@
 import numpy as np
-import pprint
 import openai
 from grid import Map
 from functools import lru_cache
@@ -98,21 +97,10 @@ class Algo(Map):
         messages=[
            {"role": "user", "content": f"{input_q}"}
          ],
-        max_tokens=10,
+        max_tokens=50,
+        temperature=1.5,
         stream=True
        )
       self.marked_questions[q_idx] = True
       return input_q, completion 
-
-
-
-# algo = Algo(34, 17, n_obstacles=50, start=(1,1))
-# algo.compute_path()
-# question, completion = algo.converse(0)
-# print(question)
-# for chunk in completion:
-#    if 'content' in chunk['choices'][0]['delta']:
-#     s = chunk['choices'][0]['delta']['content']
-#     print(s, len(s))
-
 

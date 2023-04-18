@@ -47,7 +47,7 @@ def gpt_conversation(win, algo, refresh_fn, question, completion):
       else:
         y_chat += 1; x_chat = 1
 
-      time.sleep(0.5)
+      time.sleep(0.1)
       switch += 1
 
 def game_loop(win, algo, refresh_fn):
@@ -80,16 +80,15 @@ def game_loop(win, algo, refresh_fn):
     # talk to GPT, pause path-finding, output completion    
     question, completion = algo.converse(i)
     if completion:
+      # clear chat window
+      win.addstr(algo.y_lim + 2, 1, '')
+      refresh_fn()
+      win.clrtobot()
+      refresh_fn()
       gpt_conversation(win, algo, refresh_fn, question, completion)
 
-    # clear chat window
-    win.addstr(algo.y_lim + 2, 1, '')
-    refresh_fn()
-    win.clrtobot()
-    refresh_fn()
-
     i+=1
-    time.sleep(0.1)
+    time.sleep(1)
 
 def main(stdscr):
 
