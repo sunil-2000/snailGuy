@@ -1,50 +1,11 @@
-What is the weather like today?
-How are you?
-What time is it?
 What is the meaning of life?
-What is love?
-How do I lose weight?
-What is the best way to make money?
-How do I learn a new language?
-What is the capital of a specific country?
-What is the best way to invest money?
-How do I start a business?
-What are the benefits of exercise?
-What is the best way to find a job?
-How do I cook a specific dish?
-What is the difference between two products?
-How do I file my taxes?
-How do I improve my credit score?
-How do I train for a marathon?
-What are the most popular tourist attractions in a specific city?
-What are the symptoms of a specific medical condition?
-How do I improve my public speaking skills?
-What is the best way to travel on a budget?
-What are the most common interview questions?
-How do I write a resume?
-How do I choose a career path?
-How do I buy a house?
-How do I invest in stocks?
-What is the best way to save money?
-What is the best way to pay off debt?
-What is the best way to learn a new skill?
-What is the best way to improve my memory?
-How do I improve my posture?
-What are the most popular fashion trends?
-What is the best way to stop procrastinating?
-What are the best foods to eat for a healthy diet?
-What are the most popular social media platforms?
-How do I improve my relationship with my partner?
-How do I improve my sleep quality?
-How do I relieve stress?
-How do I stop feeling anxious?
-How do I deal with depression?
-What are the best books to read?
-What are the most popular movies or TV shows?
-How do I improve my photography skills?
-What is the best way to learn a new instrument?
-How do I plan a successful wedding?
-What are the best travel destinations?
-How do I get a visa for a specific country?
-What are the most popular baby names?
-How do I adopt a pet?
+Do we have free will or are our actions predetermined?
+Is the mind distinct from the body?
+What is truth and how do we know it?
+Is morality objective or subjective?
+Can we ever truly know anything for certain?
+What is the nature of consciousness?
+What is the role of the individual in society?
+How should we live our lives?
+What is justice and how should it be achieved?
+What is the relationship between language and thought?
