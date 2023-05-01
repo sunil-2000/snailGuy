@@ -1,3 +1,3 @@
 # `terminal_conv`
-A computer-controlled discussed with GPT 
+A computer-controlled discussion with GPT 
 ![](conv.gif)
