@@ -85,9 +85,10 @@ class Algo(Map):
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": f"{input_q}"}],
-            max_tokens=100,
+            max_tokens=200,
             temperature=1,
             stream=True,
         )
         self.marked_questions[q_idx] = True
-        return input_q, completion
+
+        return input_q.split(":")[1], completion

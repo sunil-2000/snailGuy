@@ -45,7 +45,7 @@ def gpt_conversation(win, algo, refresh_fn, question, completion):
             win.addstr(y_chat, x_chat, s)
             refresh_fn()
 
-            if x_chat + len(s) <= algo.x_lim - 5:
+            if x_chat + len(s) <= algo.x_lim - 10:
                 x_chat += len(s)
             else:
                 y_chat += 1
