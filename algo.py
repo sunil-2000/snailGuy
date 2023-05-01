@@ -1,4 +1,5 @@
 import numpy as np
+from scipy import spatial
 import openai
 from grid import Map
 from functools import lru_cache
@@ -27,24 +28,10 @@ class Algo(Map):
         self.q_map = [[-1 for _ in range(x_lim)] for _ in range(y_lim)]
 
         i, j = 0, 0
-        for k in range(len(questions)):
-            for y in range(
-                i, i + a_h + 1, 1
-            ):  # i, j, upper-left expand partition each iter
-                for x in range(j, j + a_w + 1, 1):
-                    if y < y_lim and x < x_lim:
-                        self.q_map[y][x] = k
-            if j + a_w <= x_lim:
-                j += a_w
-            else:
-                i += a_h
-                j = 0
 
-        for i in range(y_lim):
-            for j in range(x_lim):
-                if self.q_map[i][j] < 0:
-                    choice = np.random.randint(low=0, high=len(questions))
-                    self.q_map[i][j] = choice
+        q_y = np.random.randint(low=0, high=y_lim, size=len(questions))
+        q_x = np.random.randint(low=0, high=x_lim, size=len(questions))
+        self.q_board = np.array([[q_y[i], q_x[i]] for i in range(len(questions))])
 
         # permute questions
         self.questions = np.random.permutation(self.questions)
@@ -87,7 +74,7 @@ class Algo(Map):
 
     def converse(self, i):
         y, x = self.path_seq[i]
-        q_idx = self.q_map[y][x]
+        _, q_idx = spatial.KDTree(self.q_board).query([y,x])
 
         # plass call to GPT with input_q
         input_q = self.questions[q_idx]
@@ -99,7 +86,7 @@ class Algo(Map):
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": f"{input_q}"}],
             max_tokens=100,
-            temperature=1.6,
+            temperature=1,
             stream=True,
         )
         self.marked_questions[q_idx] = True

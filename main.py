@@ -25,6 +25,7 @@ def game_init(win, algo, refresh_fn):
 
 def gpt_conversation(win, algo, refresh_fn, question, completion):
     boarder_offset = 2
+    obstacles = algo.obstacles
     y_chat, x_chat = algo.y_lim + boarder_offset, 1
     question = f"[userA]: {question}"
     refresh_fn()
@@ -36,7 +37,7 @@ def gpt_conversation(win, algo, refresh_fn, question, completion):
 
     y_chat += boarder_offset
     x_chat += len(response)
-
+    i = 0
     for chunk in completion:
         if "content" in chunk["choices"][0]["delta"]:  # grab token to write
             s = chunk["choices"][0]["delta"]["content"]
@@ -44,19 +45,38 @@ def gpt_conversation(win, algo, refresh_fn, question, completion):
             win.addstr(y_chat, x_chat, s)
             refresh_fn()
 
-            if x_chat + len(s) < algo.x_lim:
+            if x_chat + len(s) <= algo.x_lim - 5:
                 x_chat += len(s)
             else:
                 y_chat += 1
                 x_chat = 1
 
-        time.sleep(0.2)
-    time.sleep(3)
+        color_obs = curses.color_pair(3)
+        if i % 2 == 0:
+            color_obs = curses.color_pair(4)
+        for y, x in zip(obstacles[0], obstacles[1]):
+            win.addstr(y, x, "&", color_obs)
+            refresh_fn()
+        i += 1
+        time.sleep(0.1)
+
+    j = 0
+    t_end = time.time() + 5  # run for 5 seconds
+    while time.time() < t_end:
+        # refresh obstacle colors
+        color_obs = curses.color_pair(5)
+        if j % 3 == 0:
+            color_obs = curses.color_pair(4)
+        for y, x in zip(obstacles[0], obstacles[1]):
+            win.addstr(y, x, "&", color_obs)
+            refresh_fn()
+        j += 1
 
 
 def game_loop(win, algo, refresh_fn):
     obstacles = algo.obstacles
     y_tar, x_tar = algo.target
+    LAST_Q_ASKED = time.time()
 
     i = 0
     while i < len(algo.path_seq):
@@ -81,20 +101,24 @@ def game_loop(win, algo, refresh_fn):
         refresh_fn()
 
         # talk to GPT, pause path-finding, output completion
-        question, completion = algo.converse(i)
-        if completion:
-            # clear chat window
-            win.addstr(algo.y_lim + 2, 1, "")
-            refresh_fn()
-            win.clrtobot()
-            refresh_fn()
-            gpt_conversation(win, algo, refresh_fn, question, completion)
+        if time.time() - LAST_Q_ASKED >= 5:
+            question, completion = algo.converse(i)
+            if completion:
+                # clear chat window
+                win.addstr(algo.y_lim + 2, 1, "")
+                refresh_fn()
+                win.clrtobot()
+                refresh_fn()
+                gpt_conversation(win, algo, refresh_fn, question, completion)
+                LAST_Q_ASKED = time.time()
 
-        i += 1
         time.sleep(0.2)
+        i += 1
 
 
 def main(stdscr):
+    curses.curs_set(0)
+
     def refresh():
         stdscr.refresh()
         win.refresh()
